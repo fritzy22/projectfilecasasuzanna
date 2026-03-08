@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "447833641879",
+    "project_id": "projectfilecasasuzanna",
+    "storage_bucket": "projectfilecasasuzanna.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:447833641879:android:3b9b1f24928d1b403dead2",
+        "android_client_info": {
+          "package_name": "com.example.projectfilecasasuzanna"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCBT9rWyM6OiF__JZKVjWqUjVecW_4RVUg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
