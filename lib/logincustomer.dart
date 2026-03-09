@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -15,6 +16,7 @@ class _LoginCustomerPageState extends State<LoginCustomerPage> {
   final TextEditingController passwordController = TextEditingController();
 
   bool obscurePassword = true;
+  bool rememberMe = false;
   bool isLoading = false;
   String errorMessage = "";
 
@@ -32,7 +34,6 @@ class _LoginCustomerPageState extends State<LoginCustomerPage> {
     try {
       setState(() => isLoading = true);
 
-      // 🔐 Sign in
       final userCredential =
           await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
@@ -41,7 +42,6 @@ class _LoginCustomerPageState extends State<LoginCustomerPage> {
 
       final user = userCredential.user!;
 
-      // 🔎 Check Firestore role
       final userDoc = await FirebaseFirestore.instance
           .collection("users")
           .doc(user.uid)
@@ -59,7 +59,8 @@ class _LoginCustomerPageState extends State<LoginCustomerPage> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-              builder: (_) => const CustomerDashboardPage()),
+            builder: (_) => const CustomerDashboardPage(),
+          ),
         );
       } else {
         setState(() => errorMessage = "Access denied. Not a customer.");
@@ -77,129 +78,201 @@ class _LoginCustomerPageState extends State<LoginCustomerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xfff4f6f9),
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
-          child: Container(
-            width: 400,
-            padding: const EdgeInsets.all(30),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: const [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 20,
-                  offset: Offset(0, 10),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
+      body: Stack(
+        children: [
 
-                // LOGO
-                Image.asset(
-                  "assets/images/logocasa.jpg",
-                  height: 90,
-                ),
-
-                const SizedBox(height: 20),
-
-                const Text(
-                  "CUSTOMER LOGIN",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // ERROR MESSAGE
-                if (errorMessage.isNotEmpty)
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    margin: const EdgeInsets.only(bottom: 15),
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade100,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      errorMessage,
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  ),
-
-                // EMAIL
-                TextField(
-                  controller: emailController,
-                  decoration: const InputDecoration(
-                    labelText: "Email",
-                    border: OutlineInputBorder(),
-                  ),
-                ),
-
-                const SizedBox(height: 15),
-
-                // PASSWORD
-                TextField(
-                  controller: passwordController,
-                  obscureText: obscurePassword,
-                  decoration: InputDecoration(
-                    labelText: "Password",
-                    border: const OutlineInputBorder(),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        obscurePassword
-                            ? Icons.visibility_off
-                            : Icons.visibility,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          obscurePassword = !obscurePassword;
-                        });
-                      },
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 20),
-
-                // LOGIN BUTTON
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: isLoading ? null : loginCustomer,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: isLoading
-                        ? const CircularProgressIndicator(
-                            color: Colors.white,
-                          )
-                        : const Text(
-                            "Login",
-                            style: TextStyle(fontSize: 16),
-                          ),
-                  ),
-                ),
-
-                const SizedBox(height: 15),
-
-                const Text(
-                  "© 2026 Casa Suzanna",
-                  style: TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-              ],
+          /// 🌄 BACKGROUND IMAGE
+          SizedBox.expand(
+            child: Image.asset(
+              "assets/images/hero.jpg",
+              fit: BoxFit.cover,
             ),
           ),
-        ),
+
+          /// 🌫 STRONG BLUR + DARK OVERLAY
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+            child: Container(
+              color: Colors.black.withOpacity(0.4),
+            ),
+          ),
+
+          /// LOGIN CARD
+          Center(
+            child: SingleChildScrollView(
+              child: Container(
+                width: 380,
+                padding: const EdgeInsets.all(25),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.black.withOpacity(0.35),
+                  border: Border.all(
+                    color: Colors.white.withOpacity(0.3),
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+
+                    /// BACK BUTTON
+                    Align(
+                      alignment: Alignment.topRight,
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.green,
+                          shape: BoxShape.circle,
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Icons.arrow_back,
+                              color: Colors.white),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    /// TITLE
+                    const Text(
+                      "Login",
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    /// EMAIL FIELD
+                    TextField(
+                      controller: emailController,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: const InputDecoration(
+                        labelText: "Email",
+                        labelStyle: TextStyle(color: Colors.white70),
+                        prefixIcon:
+                            Icon(Icons.email_outlined, color: Colors.white70),
+                        enabledBorder: UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white38),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    /// PASSWORD FIELD
+                    TextField(
+                      controller: passwordController,
+                      obscureText: obscurePassword,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        labelText: "Password",
+                        labelStyle: const TextStyle(color: Colors.white70),
+                        prefixIcon: const Icon(Icons.lock_outline,
+                            color: Colors.white70),
+                        enabledBorder: const UnderlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white38),
+                        ),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                            color: Colors.white70,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              obscurePassword = !obscurePassword;
+                            });
+                          },
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 15),
+
+                    /// REMEMBER + FORGOT
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: rememberMe,
+                              activeColor: Colors.green,
+                              checkColor: Colors.white,
+                              onChanged: (value) {
+                                setState(() {
+                                  rememberMe = value!;
+                                });
+                              },
+                            ),
+                            const Text(
+                              "Remember me",
+                              style: TextStyle(color: Colors.white),
+                            )
+                          ],
+                        ),
+
+                        TextButton(
+                          onPressed: () {},
+                          child: const Text(
+                            "Forgot Password?",
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                        )
+                      ],
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    /// ERROR MESSAGE
+                    if (errorMessage.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Text(
+                          errorMessage,
+                          style: const TextStyle(color: Colors.redAccent),
+                        ),
+                      ),
+
+                    /// LOGIN BUTTON
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: isLoading ? null : loginCustomer,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF0B3D2E),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: isLoading
+                            ? const CircularProgressIndicator(
+                                color: Colors.white,
+                              )
+                            : const Text(
+                                "Login",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    /// REGISTER
+                    
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
