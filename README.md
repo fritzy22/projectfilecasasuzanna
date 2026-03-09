@@ -1,6 +1,7 @@
 # Casa Suzanna Reservation System
 
-A new Flutter project.
+⚠️ This project is currently under development.
+Some features may still be incomplete or subject to change.
 
 ## Getting Started
 
